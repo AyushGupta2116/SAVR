@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Savr — Compare Prices Instantly</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --lime: #C8F135;
+  --lime-dark: #a8d010;
+  --dark: #0E0F0C;
+  --dark2: #1A1B17;
+  --dark3: #252620;
+  --mid: #3A3B34;
+  --muted: #7A7B70;
+  --light: #F0F0E8;
+  --white: #FAFAF5;
+  --blinkit: #F7C75A;
+  --zepto: #9D5CF5;
+  --instamart: #FC8019;
+  --bigbasket: #80B500;
+  --jiomart: #0067B1;
+  --dunzo: #00BFA5;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--dark);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(14,15,12,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 60px;
+}
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--white);
+  display: flex; align-items: center; gap: 6px;
+}
+.logo-dot { width: 8px; height: 8px; background: var(--lime); border-radius: 50%; display: inline-block; }
+.nav-links { display: flex; gap: 1.5rem; align-items: center; }
+.nav-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--white); }
+.nav-cta {
+  background: var(--lime); color: var(--dark);
+  border: none; border-radius: 6px; padding: 7px 16px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: opacity 0.2s;
+}
+.nav-cta:hover { opacity: 0.85; }
+
+/* HERO */
+.hero {
+  padding: 5rem 2rem 3rem;
+  max-width: 900px; margin: 0 auto;
+  text-align: center;
+  animation: fadeUp 0.6s ease both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(200,241,53,0.1); border: 1px solid rgba(200,241,53,0.25);
+  color: var(--lime); border-radius: 99px;
+  font-size: 12px; font-weight: 500; padding: 5px 14px;
+  margin-bottom: 1.5rem; letter-spacing: 0.5px;
+}
+.hero-badge-dot { width: 6px; height: 6px; background: var(--lime); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  font-weight: 800; line-height: 1.05;
+  letter-spacing: -1.5px;
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+.hero h1 em { font-style: normal; color: var(--lime); }
+.hero p {
+  font-size: 16px; color: var(--muted); max-width: 480px; margin: 0 auto 2rem;
+  line-height: 1.7; font-weight: 300;
+}
+
+/* SEARCH */
+.search-wrap {
+  max-width: 680px; margin: 0 auto 1rem;
+  display: flex; gap: 0;
+  background: var(--dark2);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; overflow: hidden;
+  transition: border-color 0.2s;
+}
+.search-wrap:focus-within { border-color: var(--lime); }
+.search-icon { padding: 0 14px; display: flex; align-items: center; color: var(--muted); }
+.search-input {
+  flex: 1; padding: 14px 0;
+  background: transparent; border: none; outline: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; color: var(--white);
+}
+.search-input::placeholder { color: var(--muted); }
+.search-btn {
+  background: var(--lime); border: none; cursor: pointer;
+  padding: 0 24px;
+  font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+  color: var(--dark); transition: opacity 0.2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.search-btn:hover { opacity: 0.85; }
+
+/* QUICK PILLS */
+.quick-pills { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 3rem; }
+.pill {
+  padding: 6px 14px; border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--muted); font-size: 13px; cursor: pointer;
+  background: transparent; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.pill:hover { border-color: var(--lime); color: var(--lime); }
+
+/* PLATFORM LOGOS BAR */
+.platforms-bar {
+  max-width: 860px; margin: 0 auto 3rem;
+  padding: 0 2rem;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: center;
+  animation: fadeUp 0.6s 0.2s ease both; opacity: 0;
+  animation-fill-mode: forwards;
+}
+.platforms-bar span { font-size: 12px; color: var(--muted); margin-right: 4px; }
+.plat-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--dark2); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 500;
+}
+.plat-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* FILTERS */
+.filters-row {
+  max-width: 860px; margin: 0 auto 1.5rem;
+  padding: 0 2rem;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.filter-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.filter-chip {
+  padding: 6px 14px; border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--muted); font-size: 13px; cursor: pointer;
+  background: transparent; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.filter-chip.active { border-color: var(--lime); color: var(--lime); background: rgba(200,241,53,0.07); }
+
+/* RESULTS */
+.results-wrap {
+  max-width: 860px; margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+.results-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 1.25rem;
+}
+.results-count { font-size: 13px; color: var(--muted); }
+.sort-select {
+  background: var(--dark2); border: 1px solid rgba(255,255,255,0.1);
+  color: var(--white); font-family: 'DM Sans', sans-serif;
+  font-size: 13px; padding: 6px 12px; border-radius: 8px; outline: none; cursor: pointer;
+}
+
+/* PRODUCT CARD */
+.product-card {
+  background: var(--dark2);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s;
+  animation: fadeUp 0.4s ease both;
+}
+.product-card:hover { border-color: rgba(255,255,255,0.15); }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px; }
+.product-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px; font-weight: 600; color: var(--white);
+  margin-bottom: 4px;
+}
+.product-meta { font-size: 13px; color: var(--muted); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.cat-tag {
+  background: var(--dark3); color: var(--muted);
+  border-radius: 4px; padding: 2px 8px; font-size: 11px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.best-price-summary {
+  text-align: right;
+}
+.best-price-label { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+.best-price-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 700; color: var(--lime);
+}
+.best-price-plat { font-size: 11px; color: var(--muted); }
+
+/* PLATFORM TILES */
+.tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 10px;
+}
+.tile {
+  background: var(--dark3);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px; padding: 12px;
+  position: relative; transition: all 0.2s;
+  display: flex; flex-direction: column;
+}
+.tile:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-1px); }
+.tile.cheapest { border-color: var(--lime); }
+.tile-badge {
+  position: absolute; top: -9px; left: 10px;
+  background: var(--lime); color: var(--dark);
+  font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+  padding: 2px 8px; border-radius: 99px;
+  font-family: 'Syne', sans-serif; text-transform: uppercase;
+}
+.tile-header { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; }
+.tile-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.tile-name { font-size: 12px; font-weight: 500; color: var(--light); }
+.tile-price {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700; color: var(--white);
+  margin-bottom: 3px;
+}
+.tile-delivery { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+.tile-na .tile-price { font-size: 13px; color: var(--mid); font-family: 'DM Sans', sans-serif; font-weight: 400; }
+.tile-na { opacity: 0.5; }
+.tile-link {
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 7px; padding: 6px;
+  font-size: 12px; font-weight: 500; color: var(--muted);
+  text-decoration: none; transition: all 0.2s; margin-top: auto;
+}
+.tile.cheapest .tile-link { border-color: rgba(200,241,53,0.3); color: var(--lime); }
+.tile-link:hover { border-color: var(--lime); color: var(--lime); }
+.tile-savings {
+  font-size: 11px; color: var(--lime);
+  margin-bottom: 6px; display: none;
+}
+.tile.has-savings .tile-savings { display: block; }
+
+/* EMPTY */
+.empty-state {
+  text-align: center; padding: 4rem 2rem;
+  color: var(--muted);
+}
+.empty-state h3 { font-family: 'Syne', sans-serif; font-size: 18px; margin-bottom: 8px; color: var(--light); }
+.empty-state p { font-size: 14px; }
+
+/* STATS BAR */
+.stats-bar {
+  max-width: 860px; margin: 0 auto 2.5rem;
+  padding: 0 2rem;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+.stat-card {
+  background: var(--dark2); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px; padding: 1rem 1.25rem;
+}
+.stat-val { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: var(--lime); }
+.stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* FOOTER */
+footer {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 2rem; text-align: center;
+  font-size: 13px; color: var(--muted);
+}
+footer strong { color: var(--lime); }
+
+/* MOBILE */
+@media (max-width: 600px) {
+  .nav-links { display: none; }
+  .hero { padding: 3rem 1.5rem 2rem; }
+  .tiles-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-bar { grid-template-columns: 1fr; }
+  .card-top { flex-direction: column; }
+  .best-price-summary { text-align: left; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo"><span class="logo-dot"></span>Savr</div>
+  <div class="nav-links">
+    <a href="#">How it works</a>
+    <a href="#">Platforms</a>
+    <a href="#">City coverage</a>
+  </div>
+  <button class="nav-cta">Get app ↗</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><span class="hero-badge-dot"></span>Live prices across 5 platforms</div>
+  <h1>Stop switching apps.<br/>Compare <em>everything</em> here.</h1>
+  <p>Search any grocery, snack, or daily essential — Savr shows you the cheapest price across Blinkit, Zepto, Instamart, BigBasket & JioMart instantly.</p>
+
+  <div class="search-wrap">
+    <div class="search-icon">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    </div>
+    <input class="search-input" id="searchInput" type="text" placeholder="Try 'milk', 'chips', 'atta', 'shampoo'..." />
+    <button class="search-btn" onclick="doSearch()">
+      Search
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <div class="quick-pills">
+    <button class="pill" onclick="quickSearch('Milk')">🥛 Milk</button>
+    <button class="pill" onclick="quickSearch('Chips')">🍟 Chips</button>
+    <button class="pill" onclick="quickSearch('Atta')">🌾 Atta</button>
+    <button class="pill" onclick="quickSearch('Coffee')">☕ Coffee</button>
+    <button class="pill" onclick="quickSearch('Soap')">🧼 Soap</button>
+    <button class="pill" onclick="quickSearch('Eggs')">🥚 Eggs</button>
+    <button class="pill" onclick="quickSearch('Bread')">🍞 Bread</button>
+    <button class="pill" onclick="quickSearch('Rice')">🍚 Rice</button>
+  </div>
+</section>
+
+<!-- PLATFORMS BAR -->
+<div class="platforms-bar">
+  <span>Comparing across</span>
+  <div class="plat-badge"><span class="plat-dot" style="background:#F7C75A"></span>Blinkit</div>
+  <div class="plat-badge"><span class="plat-dot" style="background:#9D5CF5"></span>Zepto</div>
+  <div class="plat-badge"><span class="plat-dot" style="background:#FC8019"></span>Instamart</div>
+  <div class="plat-badge"><span class="plat-dot" style="background:#80B500"></span>BigBasket</div>
+  <div class="plat-badge"><span class="plat-dot" style="background:#0067B1"></span>JioMart</div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-card"><div class="stat-val">₹284</div><div class="stat-label">avg. saved per month by Savr users</div></div>
+  <div class="stat-card"><div class="stat-val">2,400+</div><div class="stat-label">products tracked daily</div></div>
+  <div class="stat-card"><div class="stat-val">5 min</div><div class="stat-label">price refresh interval</div></div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters-row">
+  <span class="filter-label">Category</span>
+  <button class="filter-chip active" onclick="setFilter(this,'all')">All</button>
+  <button class="filter-chip" onclick="setFilter(this,'dairy')">🥛 Dairy</button>
+  <button class="filter-chip" onclick="setFilter(this,'snacks')">🍟 Snacks</button>
+  <button class="filter-chip" onclick="setFilter(this,'staples')">🌾 Staples</button>
+  <button class="filter-chip" onclick="setFilter(this,'beverages')">☕ Beverages</button>
+  <button class="filter-chip" onclick="setFilter(this,'personal care')">🧴 Personal Care</button>
+  <button class="filter-chip" onclick="setFilter(this,'eggs & bread')">🥚 Eggs & Bread</button>
+</div>
+
+<!-- RESULTS -->
+<div class="results-wrap">
+  <div class="results-top">
+    <span class="results-count" id="resultCount">Showing 10 products</span>
+    <select class="sort-select" onchange="setSort(this.value)">
+      <option value="default">Sort: Relevance</option>
+      <option value="cheapest">Cheapest first</option>
+      <option value="expensive">Most expensive</option>
+      <option value="savings">Biggest savings</option>
+    </select>
+  </div>
+  <div id="resultsContainer"></div>
+</div>
+
+<footer>
+  Built with ❤️ · <strong>Savr</strong> is not affiliated with any platform · Prices are indicative and may vary by city & time
+</footer>
+
+<script>
+const PLATFORMS = [
+  { id:'blinkit',   name:'Blinkit',   color:'#F7C75A', url:'https://blinkit.com/s/?q=' },
+  { id:'zepto',     name:'Zepto',     color:'#9D5CF5', url:'https://www.zeptonow.com/search?query=' },
+  { id:'instamart', name:'Instamart', color:'#FC8019', url:'https://www.swiggy.com/instamart/search?query=' },
+  { id:'bigbasket', name:'BigBasket', color:'#80B500', url:'https://www.bigbasket.com/ps/?q=' },
+  { id:'jiomart',   name:'JioMart',   color:'#0067B1', url:'https://www.jiomart.com/search#q=' },
+];
+
+const PRODUCTS = [
+  { id:1, name:'Amul Taza Fresh Milk', qty:'500 ml', category:'dairy', tags:['milk','dairy','amul'],
+    prices:{ blinkit:28, zepto:27, instamart:29, bigbasket:26, jiomart:null },
+    delivery:{ blinkit:'9 min', zepto:'8 min', instamart:'15 min', bigbasket:'2 hrs', jiomart:null } },
+  { id:2, name:'Amul Taaza Toned Milk', qty:'1 L', category:'dairy', tags:['milk','dairy','amul'],
+    prices:{ blinkit:54, zepto:52, instamart:55, bigbasket:51, jiomart:53 },
+    delivery:{ blinkit:'9 min', zepto:'8 min', instamart:'15 min', bigbasket:'2 hrs', jiomart:'1 hr' } },
+  { id:3, name:"Britannia Good Day Butter Cookies", qty:'150g', category:'snacks', tags:['cookies','snacks','chips','biscuits'],
+    prices:{ blinkit:40, zepto:38, instamart:40, bigbasket:37, jiomart:35 },
+    delivery:{ blinkit:'9 min', zepto:'10 min', instamart:'15 min', bigbasket:'2 hrs', jiomart:'1 hr' } },
+  { id:4, name:'Lays American Style Cream & Onion', qty:'73g', category:'snacks', tags:['chips','snacks','lays'],
+    prices:{ blinkit:20, zepto:20, instamart:20, bigbasket:19, jiomart:null },
+    delivery:{ blinkit:'9 min', zepto:'10 min', instamart:'15 min', bigbasket:'2 hrs', jiomart:null } },
+  { id:5, name:'Kurkure Masala Munch', qty:'90g', category:'snacks', tags:['chips','snacks','kurkure'],
+    prices:{ blinkit:22, zepto:20, instamart:22, bigbasket:20, jiomart:18 },
+    delivery:{ blinkit:'9 min', zepto:'10 min', instamart:'15 min', bigbasket:'2 hrs', jiomart:'1 hr' } },
+  { id:6, name:'Aashirvaad Atta Whole Wheat', qty:'5 kg', category:'staples', tags:['atta','wheat','flour','staples'],
+    prices:{ blinkit:249, zepto:null, instamart:255, bigbasket:240, jiomart:245 },
+    delivery:{ blinkit:'9 min', zepto:null, instamart:'15 min', bigbasket:'2 hrs', jiomart:'1 hr' } },
+  { id:7, name:'India Gate Basmati Rice Classic', qty:'1 kg', category:'staples', tags:['rice','basmati','staples'],
+    prices:{ blinkit:115, zepto:112, instamart:118, bigbasket:108, jiomart:110 },
+    delivery:{ blinkit:'9 min', zepto:'8 min', instamart:'15 min', bigbasket:'2 hrs', jiomart:'1 hr' } },
+  { id:8, name:'Toor Dal Premium', qty:'1 kg', category:'staples', tags:['dal','toor','lentil','staples'],
+    prices:{ blinkit:145, zepto:140, instamart:148, bigbasket:135, jiomart:138 },
+    delivery:{ blinkit:'9 min', zepto:'8 min', instamart:'15 min', bigbasket:'2 hrs', jiomart:'1 hr' } },
+  { id:9, name:'Nescafe Classic Coffee', qty:'100g', category:'beverages', tags:['coffee','nescafe','beverages'],
+    prices:{ blinkit:195, zepto:192, instamart:199, bigbasket:188, jiomart:190 },
+    delivery:{ blinkit:'9 min', zepto:'8 min', instamart:'15 min', bigbasket:'2 hrs', jiomart:'1 hr' } },
+  { id:10, name:'Tropicana Orange Juice', qty:'1 L', category:'beverages', tags:['juice','tropicana','beverages','drinks'],
+    prices:{ blinkit:119, zepto:115, instamart:122, bigbasket:110, jiomart:112 },
+    delivery:{ blinkit:'9 min', zepto:'10 min', instamart:'15 min', bigbasket:'2 hrs', jiomart:'1 hr' } },
+  { id:11, name:'Dove Beauty Soap Bar', qty:'100g Pack of 3', category:'personal care', tags:['soap','dove','personal care','bath'],
+    prices:{ blinkit:167, zepto:160, instamart:170, bigbasket:155, jiomart:158 },
+    delivery:{ blinkit:'9 min', zepto:'8 min', instamart:'15 min', bigbasket:'2 hrs', jiomart:'1 hr' } },
+  { id:12, name:'Head & Shoulders Anti Dandruff Shampoo', qty:'340 ml', category:'personal care', tags:['shampoo','head shoulders','personal care'],
+    prices:{ blinkit:299, zepto:285, instamart:305, bigbasket:275, jiomart:280 },
+    delivery:{ blinkit:'9 min', zepto:'8 min', instamart:'15 min', bigbasket:'2 hrs', jiomart:'1 hr' } },
+  { id:13, name:'Amul Gold Full Cream Milk', qty:'1 L', category:'dairy', tags:['milk','dairy','amul'],
+    prices:{ blinkit:72, zepto:70, instamart:74, bigbasket:68, jiomart:70 },
+    delivery:{ blinkit:'9 min', zepto:'8 min', instamart:'15 min', bigbasket:'2 hrs', jiomart:'1 hr' } },
+  { id:14, name:'Farm Fresh White Eggs', qty:'6 pcs', category:'eggs & bread', tags:['eggs','egg'],
+    prices:{ blinkit:55, zepto:52, instamart:58, bigbasket:50, jiomart:null },
+    delivery:{ blinkit:'9 min', zepto:'8 min', instamart:'15 min', bigbasket:'2 hrs', jiomart:null } },
+  { id:15, name:'Britannia Bread Whole Wheat', qty:'400g', category:'eggs & bread', tags:['bread','britannia'],
+    prices:{ blinkit:45, zepto:44, instamart:47, bigbasket:42, jiomart:43 },
+    delivery:{ blinkit:'9 min', zepto:'8 min', instamart:'15 min', bigbasket:'2 hrs', jiomart:'1 hr' } },
+];
+
+let currentFilter = 'all';
+let currentSort = 'default';
+
+function getMin(prices) {
+  const vals = Object.values(prices).filter(v=>v!==null);
+  return vals.length ? Math.min(...vals) : Infinity;
+}
+function getMax(prices) {
+  const vals = Object.values(prices).filter(v=>v!==null);
+  return vals.length ? Math.max(...vals) : 0;
+}
+function getSavings(prices) { return getMax(prices) - getMin(prices); }
+
+function render(products) {
+  const c = document.getElementById('resultsContainer');
+  document.getElementById('resultCount').textContent = `Showing ${products.length} product${products.length!==1?'s':''}`;
+  if(!products.length) {
+    c.innerHTML = `<div class="empty-state"><h3>No results found</h3><p>Try searching 'milk', 'chips', or 'soap'</p></div>`;
+    return;
+  }
+  c.innerHTML = products.map((p,i) => {
+    const minPrice = getMin(p.prices);
+    const savings = getSavings(p.prices);
+    const bestPlatId = Object.entries(p.prices).find(([k,v])=>v===minPrice)?.[0];
+    const bestPlatName = PLATFORMS.find(pl=>pl.id===bestPlatId)?.name || '';
+    const tiles = PLATFORMS.map(pl => {
+      const price = p.prices[pl.id];
+      const del = p.delivery[pl.id];
+      const isBest = price !== null && price === minPrice;
+      const isMostExpensive = price === getMax(p.prices) && price !== minPrice;
+      const saved = isMostExpensive ? price - minPrice : 0;
+      const link = pl.url + encodeURIComponent(p.name);
+      if(price===null) return `<div class="tile tile-na">
+        <div class="tile-header"><span class="tile-dot" style="background:${pl.color}"></span><span class="tile-name">${pl.name}</span></div>
+        <div class="tile-price">N/A</div>
+        <div class="tile-delivery">Not available</div>
+      </div>`;
+      return `<div class="tile${isBest?' cheapest':''}${saved>0?' has-savings':''}">
+        ${isBest?'<div class="tile-badge">Best Price</div>':''}
+        <div class="tile-header"><span class="tile-dot" style="background:${pl.color}"></span><span class="tile-name">${pl.name}</span></div>
+        <div class="tile-price">₹${price}</div>
+        <div class="tile-delivery">⚡ ${del}</div>
+        ${saved>0?`<div class="tile-savings">₹${saved} more than cheapest</div>`:''}
+        <a class="tile-link" href="${link}" target="_blank">Order here →</a>
+      </div>`;
+    }).join('');
+    return `<div class="product-card" style="animation-delay:${i*0.05}s">
+      <div class="card-top">
+        <div>
+          <div class="product-name">${p.name}</div>
+          <div class="product-meta">
+            <span class="cat-tag">${p.category}</span>
+            <span>${p.qty}</span>
+            ${savings>0?`<span style="color:#C8F135;font-size:12px;">Save up to ₹${savings}</span>`:''}
+          </div>
+        </div>
+        <div class="best-price-summary">
+          <div class="best-price-label">Best price</div>
+          <div class="best-price-val">₹${minPrice}</div>
+          <div class="best-price-plat">on ${bestPlatName}</div>
+        </div>
+      </div>
+      <div class="tiles-grid">${tiles}</div>
+    </div>`;
+  }).join('');
+}
+
+function applyAll() {
+  let res = currentFilter==='all' ? [...PRODUCTS] : PRODUCTS.filter(p=>p.category===currentFilter);
+  if(currentSort==='cheapest') res.sort((a,b)=>getMin(a.prices)-getMin(b.prices));
+  else if(currentSort==='expensive') res.sort((a,b)=>getMin(b.prices)-getMin(a.prices));
+  else if(currentSort==='savings') res.sort((a,b)=>getSavings(b.prices)-getSavings(a.prices));
+  render(res);
+}
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  if(!q) { applyAll(); return; }
+  const res = PRODUCTS.filter(p =>
+    p.name.toLowerCase().includes(q) ||
+    p.category.toLowerCase().includes(q) ||
+    p.tags.some(t=>t.includes(q))
+  );
+  render(res);
+  document.getElementById('resultCount').textContent = `${res.length} result${res.length!==1?'s':''} for "${q}"`;
+}
+
+function quickSearch(term) {
+  document.getElementById('searchInput').value = term;
+  doSearch();
+  document.querySelector('.results-wrap').scrollIntoView({behavior:'smooth'});
+}
+
+function setFilter(el, cat) {
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = cat;
+  document.getElementById('searchInput').value = '';
+  applyAll();
+}
+
+function setSort(val) { currentSort=val; applyAll(); }
+
+document.getElementById('searchInput').addEventListener('keydown', e=>{ if(e.key==='Enter') doSearch(); });
+
+applyAll();
+</script>
+</body>
+</html>

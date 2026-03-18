@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Savr — Compare Grocery Prices Instantly</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;0,700;0,900;1,300;1,500&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#0D0D0B;--ink2:#1C1C19;--ink3:#252622;--mid:#4A4A44;
+  --muted:#7A7A72;--faint:#C0C0B8;--white:#FAFAF7;
+  --lime:#C8F135;--blinkit:#F7C75A;--zepto:#9D5CF5;
+  --instamart:#FC8019;--bigbasket:#80B500;--jiomart:#0067B1;
+  --r:10px;--rl:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--white);min-height:100vh;overflow-x:hidden}
+
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:200;
+  background:rgba(13,13,11,0.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  height:62px;padding:0 2.5rem;
+  display:flex;align-items:center;justify-content:space-between;gap:2rem;
+}
+.logo{
+  font-family:'Fraunces',serif;font-weight:900;font-size:22px;
+  letter-spacing:-1px;color:var(--white);background:none;border:none;
+  cursor:pointer;display:flex;align-items:center;gap:6px;
+  font-family:'Fraunces',serif;
+}
+.logo-pulse{display:inline-block;width:7px;height:7px;background:var(--lime);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.nav-links{display:flex;gap:2rem;align-items:center}
+.nav-btn{
+  font-size:13px;color:var(--muted);background:none;border:none;
+  cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.2px;
+  transition:color .2s;padding:0;
+}
+.nav-btn:hover,.nav-btn.active{color:var(--white)}
+.nav-cta{
+  background:var(--lime);color:var(--ink);border:none;border-radius:var(--r);
+  padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;transition:opacity .2s;white-space:nowrap;
+}
+.nav-cta:hover{opacity:.85}
+.nav-cta.dimmed{opacity:.5;cursor:default;pointer-events:none}
+
+/* PAGE SYSTEM */
+.page{display:none;animation:fadeIn .3s ease both}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* HERO */
+.hero{
+  max-width:1100px;margin:0 auto;padding:6rem 2.5rem 5rem;
+  display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(200,241,53,.08);border:1px solid rgba(200,241,53,.2);
+  color:var(--lime);border-radius:99px;font-size:12px;font-weight:500;
+  padding:5px 14px;margin-bottom:1.5rem;letter-spacing:.5px;
+}
+.eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--lime);animation:pulse 2s infinite}
+.hero-h1{
+  font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(2.4rem,5vw,4rem);line-height:1.02;letter-spacing:-2px;margin-bottom:1.25rem;
+}
+.hero-h1 em{font-style:italic;color:var(--lime);font-weight:300}
+.hero-sub{font-size:16px;color:var(--muted);line-height:1.7;font-weight:300;max-width:440px;margin-bottom:2.5rem}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-primary{
+  background:var(--lime);color:var(--ink);border:none;border-radius:var(--r);
+  padding:13px 28px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;
+  cursor:pointer;transition:opacity .2s,transform .15s;display:inline-block;text-decoration:none;
+}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-primary.large{padding:15px 32px;font-size:16px}
+.btn-ghost{
+  background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,.12);
+  border-radius:var(--r);padding:13px 24px;font-family:'DM Sans',sans-serif;font-size:15px;
+  cursor:pointer;transition:all .2s;display:inline-block;
+}
+.btn-ghost:hover{color:var(--white);border-color:rgba(255,255,255,.3)}
+
+/* HERO VISUAL */
+.hero-visual{position:relative;height:360px}
+.visual-product{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:var(--ink2);border:1px solid rgba(255,255,255,.1);
+  border-radius:var(--rl);padding:16px 20px;text-align:center;z-index:2;
+}
+.vp-icon{font-size:32px;margin-bottom:6px}
+.vp-name{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
+.price-float{
+  position:absolute;background:var(--ink2);border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:10px;
+  font-size:13px;animation:floatAnim 4s ease-in-out infinite;white-space:nowrap;
+}
+.p1{top:5%;left:0;animation-delay:0s}
+.p2{top:20%;right:0;animation-delay:.6s;border-color:var(--lime)}
+.p3{top:60%;left:-2%;animation-delay:1.2s}
+.p4{bottom:5%;right:5%;animation-delay:1.8s}
+.p5{top:48%;right:-2%;animation-delay:2.4s}
+@keyframes floatAnim{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.pf-plat{font-size:11px;font-weight:500;border-radius:4px;padding:2px 7px}
+.pf-plat.blinkit{background:rgba(247,199,90,.15);color:#F7C75A}
+.pf-plat.zepto{background:rgba(157,92,245,.15);color:#9D5CF5}
+.pf-plat.instamart{background:rgba(252,128,25,.15);color:#FC8019}
+.pf-plat.bigbasket{background:rgba(128,181,0,.15);color:#80B500}
+.pf-plat.jiomart{background:rgba(0,103,177,.15);color:#6abaff}
+.pf-price{font-family:'Fraunces',serif;font-weight:700;font-size:16px;color:var(--white)}
+.pf-best{font-size:10px;font-weight:600;background:var(--lime);color:var(--ink);border-radius:4px;padding:2px 6px}
+
+/* STATS STRIP */
+.stats-strip{
+  border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);
+  max-width:1100px;margin:0 auto;
+  display:flex;align-items:center;justify-content:center;padding:2rem 2.5rem;flex-wrap:wrap;
+}
+.stat-item{text-align:center;padding:0 3rem;flex-shrink:0}
+.stat-n{font-family:'Fraunces',serif;font-weight:700;font-size:28px;color:var(--lime);line-height:1}
+.stat-l{font-size:12px;color:var(--muted);margin-top:4px}
+.stat-sep{width:1px;height:40px;background:rgba(255,255,255,.08);flex-shrink:0}
+
+/* SECTIONS */
+.section{padding:5rem 2.5rem}
+.section.alt{background:var(--ink2)}
+.section-inner{max-width:900px;margin:0 auto}
+.section-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--lime);margin-bottom:1rem}
+.section-h2{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(1.8rem,3vw,2.6rem);letter-spacing:-1px;line-height:1.1;margin-bottom:1rem}
+.section-sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:560px;margin-bottom:3rem}
+
+/* PLATFORMS GRID */
+.platforms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.plat-card{
+  background:var(--ink);border:1px solid rgba(255,255,255,.07);
+  border-radius:var(--rl);padding:1.25rem;display:flex;align-items:center;gap:14px;transition:border-color .2s;
+}
+.plat-card:hover{border-color:rgba(255,255,255,.18)}
+.plat-color{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.plat-name{font-size:15px;font-weight:500}
+.plat-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.plat-tag{margin-left:auto;font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:2px 8px;white-space:nowrap}
+
+/* STEPS */
+.steps-grid{display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap}
+.step-card{flex:1;min-width:200px;background:var(--ink);border:1px solid rgba(255,255,255,.07);border-radius:var(--rl);padding:1.75rem 1.5rem}
+.step-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--lime);letter-spacing:1px;margin-bottom:1rem}
+.step-title{font-family:'Fraunces',serif;font-weight:600;font-size:18px;margin-bottom:.75rem}
+.step-desc{font-size:14px;color:var(--muted);line-height:1.6}
+.step-arrow{font-size:22px;color:var(--mid);align-self:center;flex-shrink:0;padding-top:1rem}
+
+/* CTA BAND */
+.cta-band{background:var(--lime);padding:5rem 2.5rem;text-align:center}
+.cta-inner{max-width:600px;margin:0 auto}
+.cta-h2{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(2rem,4vw,3rem);color:var(--ink);letter-spacing:-1.5px;margin-bottom:.75rem}
+.cta-sub{font-size:15px;color:#4A4A44;margin-bottom:2rem}
+.cta-band .btn-primary{background:var(--ink);color:var(--lime)}
+.cta-band .btn-primary:hover{background:var(--ink2)}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(255,255,255,.06);padding:2.5rem}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
+.footer-logo{font-family:'Fraunces',serif;font-weight:900;font-size:18px;letter-spacing:-1px;display:flex;align-items:center;gap:6px}
+.footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+.footer-links button{font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .2s;padding:0}
+.footer-links button:hover{color:var(--white)}
+.footer-legal{font-size:12px;color:var(--mid);margin-left:auto}
+
+/* PAGE HERO */
+.page-hero{max-width:900px;margin:0 auto;padding:5rem 2.5rem 3rem}
+.page-h1{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(2.2rem,4vw,3.4rem);letter-spacing:-2px;line-height:1.05;margin-top:1rem}
+.page-h1 em{font-style:italic;color:var(--lime);font-weight:300}
+
+/* ABOUT */
+.about-body{padding:0 2.5rem 5rem}
+.about-inner{max-width:700px;margin:0 auto}
+.about-block{margin-bottom:3rem}
+.about-h2{font-family:'Fraunces',serif;font-weight:600;font-size:1.4rem;letter-spacing:-.5px;margin-bottom:1rem}
+.about-block p{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:1rem}
+.about-plat-list{display:flex;flex-direction:column;gap:10px;margin-top:1rem}
+.apl-item{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--faint)}
+.apl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.apl-item strong{color:var(--white);font-weight:500}
+
+/* PLATFORM DETAIL CARDS */
+.plat-detail{
+  background:var(--ink);border:1px solid rgba(255,255,255,.07);
+  border-radius:var(--rl);padding:1.5rem;margin-bottom:12px;
+}
+.plat-detail-head{display:flex;align-items:center;gap:12px;margin-bottom:1rem}
+.plat-detail-name{font-size:18px;font-weight:500;font-family:'Fraunces',serif}
+.plat-detail p{font-size:14px;color:var(--muted);line-height:1.7}
+
+/* SEARCH PAGE */
+.search-page-hero{max-width:720px;margin:0 auto;padding:4rem 2.5rem 2rem;text-align:center}
+.search-page-title{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(2rem,4vw,3rem);letter-spacing:-1.5px;margin-bottom:.5rem}
+.search-page-sub{font-size:15px;color:var(--muted);margin-bottom:2rem}
+.search-bar-wrap{margin-bottom:1.25rem}
+.search-bar{
+  display:flex;align-items:center;background:var(--ink2);
+  border:1px solid rgba(255,255,255,.12);border-radius:14px;
+  overflow:hidden;transition:border-color .2s;
+}
+.search-bar:focus-within{border-color:var(--lime)}
+.sb-icon{padding:0 14px;color:var(--muted);flex-shrink:0;display:flex;align-items:center}
+.sb-input{
+  flex:1;padding:16px 0;background:transparent;border:none;outline:none;
+  font-family:'DM Sans',sans-serif;font-size:16px;color:var(--white);
+}
+.sb-input::placeholder{color:var(--mid)}
+.sb-btn{
+  background:var(--lime);border:none;cursor:pointer;padding:0 28px;
+  font-family:'Fraunces',serif;font-weight:700;font-size:15px;color:var(--ink);
+  transition:opacity .2s;min-height:56px;white-space:nowrap;
+}
+.sb-btn:hover{opacity:.85}
+.quick-pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.pill{
+  padding:7px 16px;border-radius:99px;border:1px solid rgba(255,255,255,.1);
+  color:var(--muted);font-size:13px;cursor:pointer;background:transparent;
+  transition:all .2s;font-family:'DM Sans',sans-serif;
+}
+.pill:hover{border-color:var(--lime);color:var(--lime)}
+.search-controls{
+  max-width:900px;margin:0 auto;padding:1.5rem 2.5rem 1rem;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+}
+.filters-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filter-label{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace}
+.filter-chip{
+  padding:5px 14px;border-radius:99px;border:1px solid rgba(255,255,255,.1);
+  color:var(--muted);font-size:12px;cursor:pointer;background:transparent;
+  transition:all .2s;font-family:'DM Sans',sans-serif;
+}
+.filter-chip.active{border-color:var(--lime);color:var(--lime);background:rgba(200,241,53,.06)}
+.sort-select{
+  background:var(--ink2);border:1px solid rgba(255,255,255,.1);color:var(--white);
+  font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 14px;border-radius:var(--r);outline:none;cursor:pointer;
+}
+.results-wrap{max-width:900px;margin:0 auto;padding:0 2.5rem 5rem}
+.results-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.results-count{font-size:13px;color:var(--muted)}
+.results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+
+/* PRODUCT CARD */
+.product-card{
+  background:var(--ink2);border:1px solid rgba(255,255,255,.07);
+  border-radius:var(--rl);padding:1.1rem 1.25rem;
+  transition:border-color .2s,transform .15s;
+  animation:cardIn .35s ease both;
+  display:flex;flex-direction:column;gap:12px;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.product-card:hover{border-color:rgba(255,255,255,.15);transform:translateY(-2px)}
+.pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.pc-name{font-family:'Fraunces',serif;font-weight:500;font-size:15px;line-height:1.3;color:var(--white)}
+.pc-qty{font-size:11px;color:var(--muted);margin-top:3px;font-family:'DM Mono',monospace}
+.pc-price-block{text-align:right;flex-shrink:0}
+.pc-price{font-family:'Fraunces',serif;font-weight:700;font-size:22px;color:var(--lime);line-height:1}
+.pc-mrp{font-size:12px;color:var(--mid);text-decoration:line-through;margin-top:2px}
+.pc-provider{display:flex;align-items:center;gap:7px;margin-top:2px}
+.pc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pc-pname{font-size:12px;color:var(--muted)}
+.pc-delivery{font-size:11px;color:var(--mid);margin-left:auto;font-family:'DM Mono',monospace}
+.pc-discount{
+  display:inline-block;font-size:10px;font-weight:500;
+  background:rgba(200,241,53,.1);color:var(--lime);
+  border-radius:4px;padding:2px 8px;align-self:flex-start;
+}
+.pc-link{
+  display:block;text-align:center;border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;padding:8px;font-size:12px;font-weight:500;
+  color:var(--muted);text-decoration:none;transition:all .2s;margin-top:auto;
+}
+.pc-link:hover{border-color:var(--lime);color:var(--lime)}
+
+/* LOADING / EMPTY */
+.loading-state{text-align:center;padding:4rem 2rem;color:var(--muted)}
+.loading-spinner{
+  width:36px;height:36px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.1);border-top-color:var(--lime);
+  animation:spin .8s linear infinite;margin:0 auto 1.5rem;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-state p{font-size:14px}
+.empty-state{text-align:center;padding:5rem 2rem;color:var(--muted)}
+.es-icon{font-size:36px;margin-bottom:1rem}
+.empty-state h3{font-family:'Fraunces',serif;font-weight:600;font-size:20px;color:var(--faint);margin-bottom:.5rem}
+.empty-state p{font-size:14px}
+
+/* MOBILE */
+@media(max-width:700px){
+  nav{padding:0 1.25rem}
+  .nav-links{display:none}
+  .hero{grid-template-columns:1fr;padding:3rem 1.5rem;text-align:center}
+  .hero-sub{margin:0 auto 2rem}
+  .hero-actions{justify-content:center}
+  .hero-visual{height:280px}
+  .stats-strip{gap:1.5rem}
+  .stat-item{padding:0 1rem}
+  .stat-sep{display:none}
+  .section{padding:3rem 1.5rem}
+  .steps-grid{flex-direction:column}
+  .step-arrow{transform:rotate(90deg);align-self:center}
+  .search-page-hero,.page-hero{padding:2.5rem 1.25rem 1.5rem}
+  .results-wrap,.search-controls{padding-left:1.25rem;padding-right:1.25rem}
+  .results-grid{grid-template-columns:1fr}
+  footer{padding:1.5rem}
+  .footer-inner{flex-direction:column;gap:1rem}
+  .footer-legal{margin-left:0}
+  .about-body{padding:0 1.5rem 4rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ NAV -->
+<nav id="mainNav">
+  <button class="logo" onclick="showPage('home')">savr<span class="logo-pulse"></span></button>
+  <div class="nav-links">
+    <button class="nav-btn" id="nav-how"       onclick="showPage('how')">How it works</button>
+    <button class="nav-btn" id="nav-platforms"  onclick="showPage('platforms')">Platforms</button>
+    <button class="nav-btn" id="nav-about"     onclick="showPage('about')">About</button>
+  </div>
+  <button class="nav-cta" id="nav-search" onclick="showPage('search')">Search prices →</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════ PAGE: HOME -->
+<div class="page" id="page-home">
+  <section class="hero">
+    <div>
+      <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Live across 5 platforms</div>
+      <h1 class="hero-h1">Stop switching apps.<br/><em>One search,</em><br/>every price.</h1>
+      <p class="hero-sub">Search any grocery, snack, or daily essential. Savr instantly compares prices across Blinkit, Zepto, Instamart, BigBasket &amp; JioMart — no login required.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="showPage('search')">Start comparing</button>
+        <button class="btn-ghost"   onclick="showPage('how')">See how it works</button>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="price-float p1"><span class="pf-plat blinkit">Blinkit</span><span class="pf-price">₹52</span></div>
+      <div class="price-float p2"><span class="pf-plat zepto">Zepto</span><span class="pf-price">₹49</span><span class="pf-best">Best</span></div>
+      <div class="price-float p3"><span class="pf-plat instamart">Instamart</span><span class="pf-price">₹55</span></div>
+      <div class="price-float p4"><span class="pf-plat bigbasket">BigBasket</span><span class="pf-price">₹58</span></div>
+      <div class="price-float p5"><span class="pf-plat jiomart">JioMart</span><span class="pf-price">₹53</span></div>
+      <div class="visual-product"><div class="vp-icon">🥛</div><div class="vp-name">Amul Tazza Milk 500ml</div></div>
+    </div>
+  </section>
+
+  <div class="stats-strip">
+    <div class="stat-item"><div class="stat-n">5</div><div class="stat-l">platforms compared</div></div>
+    <div class="stat-sep"></div>
+    <div class="stat-item"><div class="stat-n">2,400+</div><div class="stat-l">products tracked daily</div></div>
+    <div class="stat-sep"></div>
+    <div class="stat-item"><div class="stat-n">₹284</div><div class="stat-l">avg. saved per month</div></div>
+    <div class="stat-sep"></div>
+    <div class="stat-item"><div class="stat-n">0</div><div class="stat-l">logins required</div></div>
+  </div>
+
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-label">Platforms</div>
+      <h2 class="section-h2">Every major quick-commerce app, in one place</h2>
+      <p class="section-sub">We scrape live prices from all five platforms simultaneously so you always get the most current data.</p>
+      <div class="platforms-grid">
+        <div class="plat-card"><div class="plat-color" style="background:#F7C75A"></div><div><div class="plat-name">Blinkit</div><div class="plat-meta">10–15 min delivery</div></div><div class="plat-tag">Instant</div></div>
+        <div class="plat-card"><div class="plat-color" style="background:#9D5CF5"></div><div><div class="plat-name">Zepto</div><div class="plat-meta">10 min delivery</div></div><div class="plat-tag">Instant</div></div>
+        <div class="plat-card"><div class="plat-color" style="background:#FC8019"></div><div><div class="plat-name">Instamart</div><div class="plat-meta">10–15 min delivery</div></div><div class="plat-tag">Instant</div></div>
+        <div class="plat-card"><div class="plat-color" style="background:#80B500"></div><div><div class="plat-name">BigBasket</div><div class="plat-meta">2 hr scheduled</div></div><div class="plat-tag">Scheduled</div></div>
+        <div class="plat-card"><div class="plat-color" style="background:#0067B1"></div><div><div class="plat-name">JioMart</div><div class="plat-meta">2 hr scheduled</div></div><div class="plat-tag">Scheduled</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="cta-inner">
+      <h2 class="cta-h2">Ready to stop overpaying for groceries?</h2>
+      <p class="cta-sub">It's free. No account needed. Works right now.</p>
+      <button class="btn-primary large" onclick="showPage('search')">Search prices now →</button>
+    </div>
+  </section>
+
+  <footer><div class="footer-inner">
+    <span class="footer-logo">savr<span class="logo-pulse"></span></span>
+    <div class="footer-links">
+      <button onclick="showPage('home')">Home</button>
+      <button onclick="showPage('how')">How it works</button>
+      <button onclick="showPage('platforms')">Platforms</button>
+      <button onclick="showPage('about')">About</button>
+      <button onclick="showPage('search')">Search</button>
+    </div>
+    <p class="footer-legal">Not affiliated with any platform. Prices are indicative.</p>
+  </div></footer>
+</div>
+
+<!-- ═══════════════════════════════════════════ PAGE: HOW IT WORKS -->
+<div class="page" id="page-how">
+  <div class="page-hero">
+    <div class="section-label">How it works</div>
+    <h1 class="page-h1">Find the cheapest price<br/><em>in three steps.</em></h1>
+  </div>
+  <section class="section" style="padding-top:0">
+    <div class="section-inner">
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h3 class="step-title">Search a product</h3>
+          <p class="step-desc">Type any grocery item — milk, chips, atta, eggs. Savr understands natural language queries and passes them to every platform simultaneously.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h3 class="step-title">We scrape all 5 platforms</h3>
+          <p class="step-desc">Our backend fires five Puppeteer scrapers in parallel — one per platform. Each handles location gating, lazy loading, and live DOM extraction.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h3 class="step-title">You pick the cheapest</h3>
+          <p class="step-desc">See all prices side-by-side, filter by platform, sort any way you like, then click directly to the winning platform to complete your order.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section alt">
+    <div class="section-inner">
+      <div class="section-label">Under the hood</div>
+      <h2 class="section-h2">Built for accuracy, not speed tricks</h2>
+      <p class="section-sub">Prices are fetched fresh on every search — not from a cache or database. What you see is what's live on the platform right now, for your city.</p>
+      <div class="platforms-grid">
+        <div class="plat-card"><div class="plat-color" style="background:var(--lime)"></div><div><div class="plat-name">Live scraping</div><div class="plat-meta">Fresh prices every search</div></div></div>
+        <div class="plat-card"><div class="plat-color" style="background:var(--lime)"></div><div><div class="plat-name">Parallel fetching</div><div class="plat-meta">All 5 platforms at once</div></div></div>
+        <div class="plat-card"><div class="plat-color" style="background:var(--lime)"></div><div><div class="plat-name">No login needed</div><div class="plat-meta">Works out of the box</div></div></div>
+        <div class="plat-card"><div class="plat-color" style="background:var(--lime)"></div><div><div class="plat-name">City-aware</div><div class="plat-meta">Location-gated scrapers</div></div></div>
+      </div>
+    </div>
+  </section>
+  <section class="cta-band">
+    <div class="cta-inner">
+      <h2 class="cta-h2">See it in action.</h2>
+      <p class="cta-sub">Try searching "milk" or "amul butter" right now.</p>
+      <button class="btn-primary large" onclick="showPage('search')">Search prices →</button>
+    </div>
+  </section>
+  <footer><div class="footer-inner">
+    <span class="footer-logo">savr<span class="logo-pulse"></span></span>
+    <div class="footer-links">
+      <button onclick="showPage('home')">Home</button>
+      <button onclick="showPage('how')">How it works</button>
+      <button onclick="showPage('platforms')">Platforms</button>
+      <button onclick="showPage('about')">About</button>
+      <button onclick="showPage('search')">Search</button>
+    </div>
+    <p class="footer-legal">Not affiliated with any platform. Prices are indicative.</p>
+  </div></footer>
+</div>
+
+<!-- ═══════════════════════════════════════════ PAGE: PLATFORMS -->
+<div class="page" id="page-platforms">
+  <div class="page-hero">
+    <div class="section-label">Platforms</div>
+    <h1 class="page-h1">Five apps.<br/><em>One search.</em></h1>
+  </div>
+  <section class="section" style="padding-top:0">
+    <div class="section-inner">
+      <p class="section-sub">Savr compares prices across every major quick-commerce platform in India. Here's what we cover and how each one works.</p>
+      <div class="plat-detail">
+        <div class="plat-detail-head"><div class="plat-color" style="background:#F7C75A;width:14px;height:14px"></div><span class="plat-detail-name">Blinkit</span><div class="plat-tag" style="margin-left:auto">10–15 min</div></div>
+        <p>Gurugram-based quick-commerce platform (formerly Grofers), now owned by Zomato. Covers most major metros. Known for extremely fast delivery from dark stores.</p>
+      </div>
+      <div class="plat-detail">
+        <div class="plat-detail-head"><div class="plat-color" style="background:#9D5CF5;width:14px;height:14px"></div><span class="plat-detail-name">Zepto</span><div class="plat-tag" style="margin-left:auto">10 min</div></div>
+        <p>Mumbai-born 10-minute delivery startup, expanding rapidly across Indian cities. Strong on fresh produce and everyday groceries. Location PIN-based delivery zones.</p>
+      </div>
+      <div class="plat-detail">
+        <div class="plat-detail-head"><div class="plat-color" style="background:#FC8019;width:14px;height:14px"></div><span class="plat-detail-name">Swiggy Instamart</span><div class="plat-tag" style="margin-left:auto">10–15 min</div></div>
+        <p>Swiggy's grocery arm, leveraging an existing delivery network. Broad city coverage due to Swiggy's existing restaurant delivery infrastructure.</p>
+      </div>
+      <div class="plat-detail">
+        <div class="plat-detail-head"><div class="plat-color" style="background:#80B500;width:14px;height:14px"></div><span class="plat-detail-name">BigBasket</span><div class="plat-tag" style="margin-left:auto">2 hr slots</div></div>
+        <p>India's largest online grocery platform (Tata-owned). Scheduled slot-based delivery with the widest SKU catalogue. Best for bulk buying and specialty products.</p>
+      </div>
+      <div class="plat-detail">
+        <div class="plat-detail-head"><div class="plat-color" style="background:#0067B1;width:14px;height:14px"></div><span class="plat-detail-name">JioMart</span><div class="plat-tag" style="margin-left:auto">2 hr slots</div></div>
+        <p>Reliance's grocery platform with deep integration into the Jio ecosystem. Algolia-powered search and broad product selection. Competitive pricing on staples.</p>
+      </div>
+    </div>
+  </section>
+  <section class="cta-band">
+    <div class="cta-inner">
+      <h2 class="cta-h2">Compare them all now.</h2>
+      <p class="cta-sub">One search. All five platforms. Instantly.</p>
+      <button class="btn-primary large" onclick="showPage('search')">Search prices →</button>
+    </div>
+  </section>
+  <footer><div class="footer-inner">
+    <span class="footer-logo">savr<span class="logo-pulse"></span></span>
+    <div class="footer-links">
+      <button onclick="showPage('home')">Home</button>
+      <button onclick="showPage('how')">How it works</button>
+      <button onclick="showPage('platforms')">Platforms</button>
+      <button onclick="showPage('about')">About</button>
+      <button onclick="showPage('search')">Search</button>
+    </div>
+    <p class="footer-legal">Not affiliated with any platform. Prices are indicative.</p>
+  </div></footer>
+</div>
+
+<!-- ═══════════════════════════════════════════ PAGE: ABOUT -->
+<div class="page" id="page-about">
+  <div class="page-hero">
+    <div class="section-label">About Savr</div>
+    <h1 class="page-h1">Built because grocery apps<br/><em>shouldn't make you do maths.</em></h1>
+  </div>
+  <section class="about-body">
+    <div class="about-inner">
+      <div class="about-block">
+        <h2 class="about-h2">The problem</h2>
+        <p>Blinkit, Zepto, Instamart, BigBasket and JioMart all sell the same packet of milk — but at five different prices, with five different delivery fees, and sometimes five different promotions running at the same time. To get the cheapest option, you'd have to open every app, search for the same product, compare numbers in your head, then close four of them. Every. Single. Purchase.</p>
+        <p>Nobody has time for that.</p>
+      </div>
+      <div class="about-block">
+        <h2 class="about-h2">What Savr does</h2>
+        <p>Savr is a single search box that simultaneously queries all five major quick-commerce platforms in India. You type the product name once. We scrape live prices from every platform in parallel using headless browser automation, then return a flat sorted list showing you which platform has it cheapest, right now.</p>
+        <p>No account. No login. No dark patterns. Just prices.</p>
+      </div>
+      <div class="about-block">
+        <h2 class="about-h2">How the tech works</h2>
+        <p>The backend is a Node.js server running five Puppeteer scrapers in parallel — one for each platform. Each scraper handles location gating, lazy loading, and the unique DOM structure of its target site. Results are returned as a flat JSON array and rendered live in the browser.</p>
+        <p>Prices are fetched fresh on every search — not from a cache, not from a database. What you see is what's live on the platform right now.</p>
+      </div>
+      <div class="about-block">
+        <h2 class="about-h2">Platforms covered</h2>
+        <div class="about-plat-list">
+          <div class="apl-item"><span class="apl-dot" style="background:#F7C75A"></span><strong>Blinkit</strong> — Gurugram-based 10-min delivery</div>
+          <div class="apl-item"><span class="apl-dot" style="background:#9D5CF5"></span><strong>Zepto</strong> — 10-min delivery across major cities</div>
+          <div class="apl-item"><span class="apl-dot" style="background:#FC8019"></span><strong>Swiggy Instamart</strong> — Instamart arm of Swiggy</div>
+          <div class="apl-item"><span class="apl-dot" style="background:#80B500"></span><strong>BigBasket</strong> — Scheduled 2-hour grocery delivery</div>
+          <div class="apl-item"><span class="apl-dot" style="background:#0067B1"></span><strong>JioMart</strong> — Reliance's grocery platform</div>
+        </div>
+      </div>
+      <div class="about-block">
+        <h2 class="about-h2">Disclaimer</h2>
+        <p>Savr is an independent price comparison tool. We are not affiliated with, endorsed by, or in partnership with any of the platforms listed. Prices shown are scraped live from public-facing web pages and are indicative only — they may vary by city, store, and time of day. Always verify the final price on the platform before purchasing.</p>
+      </div>
+    </div>
+  </section>
+  <section class="cta-band">
+    <div class="cta-inner">
+      <h2 class="cta-h2">Give it a try.</h2>
+      <p class="cta-sub">Search any product. See prices from all five platforms instantly.</p>
+      <button class="btn-primary large" onclick="showPage('search')">Search now →</button>
+    </div>
+  </section>
+  <footer><div class="footer-inner">
+    <span class="footer-logo">savr<span class="logo-pulse"></span></span>
+    <div class="footer-links">
+      <button onclick="showPage('home')">Home</button>
+      <button onclick="showPage('how')">How it works</button>
+      <button onclick="showPage('platforms')">Platforms</button>
+      <button onclick="showPage('about')">About</button>
+      <button onclick="showPage('search')">Search</button>
+    </div>
+    <p class="footer-legal">Not affiliated with any platform. Prices are indicative.</p>
+  </div></footer>
+</div>
+
+<!-- ═══════════════════════════════════════════ PAGE: SEARCH -->
+<div class="page" id="page-search">
+  <div class="search-page-hero">
+    <h1 class="search-page-title">What are you looking for?</h1>
+    <p class="search-page-sub">We'll check all 5 platforms at once.</p>
+    <div class="search-bar-wrap">
+      <div class="search-bar">
+        <span class="sb-icon">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+        </span>
+        <input id="searchInput" class="sb-input" type="text" placeholder="Try 'milk', 'amul butter', 'tata salt'..." autocomplete="off"/>
+        <button class="sb-btn" id="searchBtn">Search</button>
+      </div>
+    </div>
+    <div class="quick-pills" id="quickPills"></div>
+  </div>
+
+  <div class="search-controls" id="searchControls" style="display:none">
+    <div class="filters-row" id="filtersRow"></div>
+    <select class="sort-select" id="sortSelect">
+      <option value="default">Sort: Relevance</option>
+      <option value="cheapest">Cheapest first</option>
+      <option value="expensive">Most expensive</option>
+    </select>
+  </div>
+
+  <div class="results-wrap">
+    <div class="results-top" id="resultsTop" style="display:none">
+      <span class="results-count" id="resultCount"></span>
+    </div>
+    <div id="resultsContainer">
+      <div class="empty-state">
+        <div class="es-icon">🔍</div>
+        <h3>Search anything</h3>
+        <p>Type a product name above to compare prices across all platforms.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer><div class="footer-inner">
+    <span class="footer-logo">savr<span class="logo-pulse"></span></span>
+    <div class="footer-links">
+      <button onclick="showPage('home')">Home</button>
+      <button onclick="showPage('how')">How it works</button>
+      <button onclick="showPage('platforms')">Platforms</button>
+      <button onclick="showPage('about')">About</button>
+      <button onclick="showPage('search')">Search</button>
+    </div>
+    <p class="footer-legal">Not affiliated with any platform. Prices are indicative.</p>
+  </div></footer>
+</div>
+
+<!-- ═══════════════════════════════════════════ SCRIPTS -->
+<script src="provider.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
