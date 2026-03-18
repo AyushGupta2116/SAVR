@@ -11,10 +11,8 @@ Data Persistence: Save your tracked items locally or to a database.
 
 User-Friendly Interface: Built with a focus on simplicity and speed.
 
-[Add a specific feature here, e.g., "Email Alerts for price drops"]
 Tech Stack
 Language: Python / C++ (Adjust based on what you used)
 
-Tools: Cursor IDE, Git
+Tools: Cursor IDE, Git,cursor ,ai agents .....
 
-Libraries: [Add libraries like BeautifulSoup, Requests, or Pandas if applicable]
